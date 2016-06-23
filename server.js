@@ -43,16 +43,16 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function () {
         console.log(myName + ' disconnected');
         io.sockets.emit("message", myName + " disconnected");
-        users[myName] = null
-        delete positions[myName]
+        users[myName] = null;
+        delete positions[myName];
     });
     socket.on('message', function (msg) {
-        sender = myName;
+        var sender = myName;
         console.log(sender + ': ' + msg);
         io.sockets.emit("message", sender + ': ' + msg);
     });
     socket.on('keys', function (key) {
-        sender = positions[myName];
+        var sender = positions[myName];
         if (key == "W") {
             sender.vec.x = sender.vec.x * 1.1;
             sender.vec.y = sender.vec.y * 1.1;
@@ -72,19 +72,19 @@ io.on('connection', function (socket) {
         io.sockets.emit("positions", JSON.stringify(positions));
     });
     socket.on('admin', function (data) {
-        vals = data.split(':');
+        var vals = data.split(':');
         console.log(vals);
         if (vals[0] == "dx") {
-            positions[myName].vec.x = parseFloat(vals[1])
+            positions[myName].vec.x = parseFloat(vals[1]);
         }
         else if (vals[0] == "dy") {
-            positions[myName].vec.y = parseFloat(vals[1])
+            positions[myName].vec.y = parseFloat(vals[1]);
         }
         else if (vals[0] == "x") {
-            positions[myName].x = parseFloat(vals[1])
+            positions[myName].x = parseFloat(vals[1]);
         }
         else if (vals[0] == "y") {
-            positions[myName].y = parseFloat(vals[1])
+            positions[myName].y = parseFloat(vals[1]);
         }
     });
 });
@@ -94,7 +94,7 @@ io.on('connection', function (socket) {
 function tick() {
   Object.keys(positions).forEach(function(key, index){
     if(positions[key].alive == true){
-      user = key
+      var user = key;
       positions[user].x += positions[user].vec.x;
       positions[user].y += positions[user].vec.y;
       if(positions[user].y + positions[user].vec.y < positions[user].ballRadius || positions[user].y + positions[user].vec.y > canvas.height-positions[user].ballRadius){
@@ -125,30 +125,31 @@ function tick() {
 
 function collisionDetection(user) {
     Object.keys(positions).forEach(function (key, index) {
-        p1 = positions[user];
-        p2 = positions[key];
-        difx = p1.x - p2.x;
-        dify = p1.y - p2.y;
-        distance = Math.sqrt(difx * difx + dify * dify);
-        if (p1 !== p2 && p1.alive == true && p2.alive == true) {
-            if (distance < p1.ballRadius + p2.ballRadius) {
-                io.sockets.emit("log", "collision between " + user + " & " + key);
-                if (Math.abs(p1.vec.x) + Math.abs(p1.vec.y) > Math.abs(p2.vec.x) + Math.abs(p2.vec.y)) {
-                    positions[key].alive = false;
-                    positions[user].score += positions[key].score;
-                    console.log(key + " is dead")
+        var p1 = positions[user];
+        var p2 = positions[key];
+        var difx = p1.x - p2.x;
+        var dify = p1.y - p2.y;
+        var distance = Math.sqrt(difx * difx + dify * dify);
+        if (p1 !== p2) {
+            if (p1.alive == true && p2.alive == true) {
+                if (distance < p1.ballRadius + p2.ballRadius) {
+                    io.sockets.emit("log", "collision between " + user + " & " + key);
+                    if (Math.abs(p1.vec.x) + Math.abs(p1.vec.y) > Math.abs(p2.vec.x) + Math.abs(p2.vec.y)) {
+                        positions[key].alive = false;
+                        positions[user].score += positions[key].score;
+                        console.log(key + " is dead")
+                    }
+                    else {
+                        positions[user].alive = false;
+                        positions[key].score += positions[user].score;
+                        console.log(user + " is dead")
+                    }
                 }
-                else {
-                    positions[user].alive = false;
-                    positions[key].score += positions[user].score;
-                    console.log(user + " is dead")
-                }
+            } else {
+                positions[user].alive = false;
+                positions[key].score += positions[user].score
+                console.log(user + " is dead")
             }
-        }
-        else {
-          positions[user].alive = false;
-          positions[key].score += positions[user].score
-          console.log(user+" is dead")
         }
         io.sockets.emit("positions", JSON.stringify(positions));
       })

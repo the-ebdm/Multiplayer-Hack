@@ -3,50 +3,6 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-        var socket = io();
-        var position;
-        var positions;
-        var alive;
-        var id;
-
-        var poslog = {};
-        var msgfade = 5000;
-        var trail = false;
-        var tick = 1;
-
-
-        function init() {
-            //start game
-            $('#banner').hide();
-            $('#game').removeClass("hidden");
-        }
-        function change(vari, val) {
-            socket.emit("admin", vari + ":" + val)
-        }
-        socket.on('message', function (msg) {
-            $('#messages').prepend('<li>' + msg + '</li>').children(':first').delay(msgfade).fadeOut(1000)
-        });
-        socket.on('id', function (data) {
-            id = data;
-        });
-        socket.on('positions', function (data) {
-            positions = JSON.parse(data);
-            position = positions[id];
-            $('#chatbox').css({
-                'background-image': 'none',
-                'border-color': position.color
-            });
-            $('.panel-heading').css({
-                'background-image': 'none',
-                'background-color': position.color
-            });
-            draw();
-        });
-        socket.on('log', function (msg) {
-            console.dir(msg);
-        });
-    </script>
 </head>
 <body>
 <div class="container">
@@ -58,8 +14,8 @@
         <h1>Multiplay-Project</h1>
         <p class="lead">Instructions for something with no controls... hmmm... none just watch. There are controls now
             but your probably better not using them... Ok Fine... WASD. Pffft.</p>
-        <!--<p><a class="btn btn-lg btn-success" role="button" onclick="init()">Start</a>-->
-        <a class="btn btn-lg btn-success" role="button" onclick="clearInterval(drawing)">Stop</a></p>
+        <p><a class="btn btn-lg btn-success btn-start" role="button">Start</a>
+            <a class="btn btn-lg btn-success btn-stop" role="button">Stop</a></p>
     </div>
 
     <div class="row" id="game" style="padding-left:5%; padding-top:2%;">
@@ -86,7 +42,94 @@
         </div>
     </div>
 </div>
-    <script>
+<script>
+    !function ($, io, document) {
+        "use strict";
+        var socket = io();
+        var position;
+        var positions;
+        var alive; //alive is dead
+        var id;
+        var MESSAGELIMIT = 20;
+
+        var poslog = {};
+        var MSGFADE = 5000;
+        var trail = false;
+        var tick = 1;
+        var drawing = null;
+
+        function attachHandlers() {
+            $('.btn-start').on('click', init);
+            $('.btn-stop').on('click', halt);
+            $('#chat').on('keypress', function(e){
+                (e.which === 13) && sendChat();
+            });
+        }
+
+        function setup() {
+            attachHandlers();
+            setInterval(clearOldMessages, MESSAGELIMIT);
+        }
+
+
+        function init() {
+            //start game
+            if (!drawing) {
+                $('#banner').hide();
+                $('#game').removeClass("hidden");
+                drawing = setInterval(draw, 50);
+            }
+        }
+
+        function sendChat() {
+            var chatBox = $("#chat");
+            sendMessage(chatBox.val());
+            chatBox.val("");
+        }
+
+        function clearOldMessages() {
+            var doomedMessages = $('#messages li').slice(MESSAGELIMIT);
+            doomedMessages.fadeOut(MSGFADE).promise().then(function(){
+                doomedMessages.detach();
+            });
+        }
+
+        function sendMessage(msg) {
+            socket.emit("message", msg);
+        }
+
+        function change(vari, val) {
+            socket.emit("admin", vari + ":" + val)
+        }
+
+        function halt() {
+            clearInterval(drawing);
+            drawing = null;
+        }
+
+        socket.on('message', function (msg) {
+            $('#messages').prepend('<li>' + msg + '</li>').children(':first');
+        });
+        socket.on('id', function (data) {
+            id = data;
+        });
+        socket.on('positions', function (data) {
+            positions = JSON.parse(data);
+            position = positions[id];
+            $('#chatbox').css({
+                'background-image': 'none',
+                'border-color': position.color
+            });
+            $('.panel-heading').css({
+                'background-image': 'none',
+                'background-color': position.color
+            });
+            draw();
+        });
+        socket.on('log', function (msg) {
+            console.dir(msg);
+        });
+
         var canvas = document.getElementById("battlefield");
         var ctx = canvas.getContext("2d");
 
@@ -211,8 +254,8 @@
         }
 
         socket.emit("keys", " ");
-        var drawing = setInterval(draw, 50);
-        //use clearInterval(drawing) to stop game ticking
-    </script>
+        setup();
+    }(jQuery, io, document);
+</script>
 </body>
 </html>

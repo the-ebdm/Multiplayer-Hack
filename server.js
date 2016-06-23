@@ -92,33 +92,19 @@ io.on('connection', function (socket) {
 //game processing
 
 function tick() {
-  Object.keys(positions).forEach(function(key, index){
-    if(positions[key].alive == true){
-      user = key
-      positions[user].x += positions[user].vec.x;
-      positions[user].y += positions[user].vec.y;
-      if(positions[user].y + positions[user].vec.y < positions[user].ballRadius || positions[user].y + positions[user].vec.y > canvas.height-positions[user].ballRadius){
-        positions[user].vec.y = -positions[user].vec.y
-      }
-      if(positions[user].x + positions[user].vec.x > canvas.width-positions[user].ballRadius || positions[user].x + positions[user].vec.x < positions[user].ballRadius){
-        positions[user].vec.x = -positions[user].vec.x
-      }
-      collisionDetection(user);
-    }
-  });
-    Object.keys(positions).forEach(function (key, index) {
-        if (positions[key].alive == true) {
-            var user = key;
-            positions[user].x += positions[user].vec.x;
-            positions[user].y += positions[user].vec.y;
-            if (positions[user].y + positions[user].vec.y < positions[user].ballRadius || positions[user].y + positions[user].vec.y > canvas.height - positions[user].ballRadius) {
-                positions[user].vec.y = -positions[user].vec.y
-            }
-            if (positions[user].x + positions[user].vec.x > canvas.width - positions[user].ballRadius || positions[user].x + positions[user].vec.x < positions[user].ballRadius) {
-                positions[user].vec.x = -positions[user].vec.x
-            }
-            collisionDetection(user);
+    Object.keys(positions).forEach(function(key, index){
+      if(positions[key].alive == true){
+        user = key
+        positions[user].x += positions[user].vec.x;
+        positions[user].y += positions[user].vec.y;
+        if(positions[user].y + positions[user].vec.y < positions[user].ballRadius || positions[user].y + positions[user].vec.y > canvas.height-positions[user].ballRadius){
+          positions[user].vec.y = -positions[user].vec.y
         }
+        if(positions[user].x + positions[user].vec.x > canvas.width-positions[user].ballRadius || positions[user].x + positions[user].vec.x < positions[user].ballRadius){
+          positions[user].vec.x = -positions[user].vec.x
+        }
+        collisionDetection(user);
+      }
     });
     io.sockets.emit("positions", JSON.stringify(positions));
 }
@@ -144,11 +130,6 @@ function collisionDetection(user) {
                     console.log(user + " is dead")
                 }
             }
-        }
-        else {
-          positions[user].alive = false;
-          positions[key].score += positions[user].score
-          console.log(user+" is dead")
         }
         io.sockets.emit("positions", JSON.stringify(positions));
       })

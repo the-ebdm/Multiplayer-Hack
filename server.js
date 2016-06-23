@@ -130,25 +130,26 @@ function collisionDetection(user) {
         var difx = p1.x - p2.x;
         var dify = p1.y - p2.y;
         var distance = Math.sqrt(difx * difx + dify * dify);
-        if (p1 !== p2 && p1.alive == true && p2.alive == true) {
-            if (distance < p1.ballRadius + p2.ballRadius) {
-                io.sockets.emit("log", "collision between " + user + " & " + key);
-                if (Math.abs(p1.vec.x) + Math.abs(p1.vec.y) > Math.abs(p2.vec.x) + Math.abs(p2.vec.y)) {
-                    positions[key].alive = false;
-                    positions[user].score += positions[key].score;
-                    console.log(key + " is dead")
+        if (p1 !== p2) {
+            if (p1.alive == true && p2.alive == true) {
+                if (distance < p1.ballRadius + p2.ballRadius) {
+                    io.sockets.emit("log", "collision between " + user + " & " + key);
+                    if (Math.abs(p1.vec.x) + Math.abs(p1.vec.y) > Math.abs(p2.vec.x) + Math.abs(p2.vec.y)) {
+                        positions[key].alive = false;
+                        positions[user].score += positions[key].score;
+                        console.log(key + " is dead")
+                    }
+                    else {
+                        positions[user].alive = false;
+                        positions[key].score += positions[user].score;
+                        console.log(user + " is dead")
+                    }
                 }
-                else {
-                    positions[user].alive = false;
-                    positions[key].score += positions[user].score;
-                    console.log(user + " is dead")
-                }
+            } else {
+                positions[user].alive = false;
+                positions[key].score += positions[user].score
+                console.log(user + " is dead")
             }
-        }
-        else {
-          positions[user].alive = false;
-          positions[key].score += positions[user].score
-          console.log(user+" is dead")
         }
         io.sockets.emit("positions", JSON.stringify(positions));
       })

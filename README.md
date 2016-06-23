@@ -6,3 +6,15 @@ Supposed to be a battleships style game, where the player controls only their ow
 
 Uses nodejs with various modules including express and socket.
 Renders on the client with canvas.
+
+Installation
+===
+
+`npm install`
+
+Use
+===
+
+`./run.sh`
+
+And open web browser to http://localhost:3000/game

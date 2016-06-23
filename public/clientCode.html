@@ -1,219 +1,222 @@
 <html>
-  <head>
+<head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
-      var socket = io();
-      var position;
-      var positions;
-      var alive;
-      var id;
+        var socket = io();
+        var position;
+        var positions;
+        var alive;
+        var id;
 
-      var poslog = {}
-      var msgfade = 5000;
-      var trail = false;
-      var tick = 1;
+        var poslog = {};
+        var msgfade = 5000;
+        var trail = false;
+        var tick = 1;
 
 
-      function init(){
-        //start game
-        $('#banner').hide()
-        $('#game').removeClass("hidden")
-      }
-      function change(vari, val){
-        socket.emit("admin", vari+":"+val)
-      }
-      socket.on('message', function(msg){
-        $('#messages').prepend('<li>'+msg+'</li>').children(':first').delay(msgfade).fadeOut(1000)
-      });
-      socket.on('id', function(data){
-        id = data;
-      });
-      socket.on('positions', function(data){
-        positions = JSON.parse(data)
-        position = positions[id]
-        $('#chatbox').css({
-          'background-image': 'none',
-          'border-color': position.color
-        })
-        $('.panel-heading').css({
-          'background-image': 'none',
-          'background-color': position.color
-        })
-        draw()
-      });
-      socket.on('log', function(msg){
-        console.dir(msg)
-      });
+        function init() {
+            //start game
+            $('#banner').hide();
+            $('#game').removeClass("hidden");
+        }
+        function change(vari, val) {
+            socket.emit("admin", vari + ":" + val)
+        }
+        socket.on('message', function (msg) {
+            $('#messages').prepend('<li>' + msg + '</li>').children(':first').delay(msgfade).fadeOut(1000)
+        });
+        socket.on('id', function (data) {
+            id = data;
+        });
+        socket.on('positions', function (data) {
+            positions = JSON.parse(data);
+            position = positions[id];
+            $('#chatbox').css({
+                'background-image': 'none',
+                'border-color': position.color
+            });
+            $('.panel-heading').css({
+                'background-image': 'none',
+                'background-color': position.color
+            });
+            draw();
+        });
+        socket.on('log', function (msg) {
+            console.dir(msg);
+        });
     </script>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header clearfix">
+</head>
+<body>
+<div class="container">
+    <div class="header clearfix">
         <h3 class="text-muted">Multiplay-Project</h3>
-      </div>
+    </div>
 
-      <div class="jumbotron" id="banner">
+    <div class="jumbotron" id="banner">
         <h1>Multiplay-Project</h1>
         <p class="lead">Instructions for something with no controls... hmmm... none just watch. There are controls now
-        but your probably better not using them... Ok Fine... WASD. Pffft.</p>
+            but your probably better not using them... Ok Fine... WASD. Pffft.</p>
         <!--<p><a class="btn btn-lg btn-success" role="button" onclick="init()">Start</a>-->
         <a class="btn btn-lg btn-success" role="button" onclick="clearInterval(drawing)">Stop</a></p>
-      </div>
+    </div>
 
-      <div class="row" id="game" style="padding-left:5%; padding-top:2%;">
+    <div class="row" id="game" style="padding-left:5%; padding-top:2%;">
         <div class="col-md-8">
-          <div style="width:100%; height:auto; display: block;">
-            <canvas id="battlefield" width="640" height="240"></canvas>
-          </div>
-          <div style="display:block;">
-            <input id="m" autocomplete="off" /><input id="pos" autocomplete="off" value="0,0"/>
-          </div>
+            <div style="width:100%; height:auto; display: block;">
+                <canvas id="battlefield" width="640" height="240"></canvas>
+            </div>
+            <div style="display:block;">
+                <input id="m" autocomplete="off"/><input id="pos" autocomplete="off" value="0,0"/>
+            </div>
         </div>
         <div class="col-md-4">
-          <div class="panel panel-primary" id="chatbox">
-            <div class="panel-heading">
-              <h3 class="panel-title">Chat</h3>
-            </div>
-            <div class="panel-body">
-              <input id="chat" type="text" class="form-control">
-            </div>
-            <div class="panel-body">
-              <div id="messages" style="padding-bottom:2%; display:block;"></div>
+            <div class="panel panel-primary" id="chatbox">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Chat</h3>
+                </div>
+                <div class="panel-body">
+                    <input id="chat" type="text" class="form-control">
+                </div>
+                <div class="panel-body">
+                    <div id="messages" style="padding-bottom:2%; display:block;"></div>
+                </div>
             </div>
         </div>
-      </div>
     </div>
+</div>
     <script>
-      var canvas = document.getElementById("battlefield");
-      var ctx = canvas.getContext("2d");
+        var canvas = document.getElementById("battlefield");
+        var ctx = canvas.getContext("2d");
 
-      var leftPressed = false;
-      var rightPressed = false;
+        var leftPressed = false;
+        var rightPressed = false;
 
-      document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keydown", keyDownHandler, false);
 
-      function keyDownHandler(e){
-        switch (e.keyCode) {
-          case 65:
-            socket.emit("keys", "A");
-            console.log("A")
-            break;
-          case 87:
-            socket.emit("keys", "W");
-            console.log("W")
-            break;
-          case 68:
-            socket.emit("keys", "D");
-            console.log("D")
-            break;
-          case 83:
-            socket.emit("keys", "S");
-            console.log("S")
-            break;
-          default:
-            console.log(e.keyCode)
-            break;
-      }};
-
-      function drawName(){
-        ctx.font = "16px Arial";
-        ctx.fillStyle = position.color;
-        ctx.fillText(id+" - Score: "+position.score, 8, 20)
-      }
-
-      function drawDead(){
-        ctx.font = "16px Arial";
-        ctx.fillStyle = position.color;
-        ctx.fillText("Your Dead: Game Over", canvas.width/2, canvas.height/2)
-        document.title = "Your Dead"
-        trail = false
-      }
-
-      function drawBalls(){
-        Object.keys(positions).forEach(function(key, index){
-          if(positions[key].alive == true){
-            if(key == id){
-              document.title = "Score: "+positions[id].score
+        function keyDownHandler(e) {
+            switch (e.keyCode) {
+                case 65:
+                    socket.emit("keys", "A");
+                    console.log("A");
+                    break;
+                case 87:
+                    socket.emit("keys", "W");
+                    console.log("W");
+                    break;
+                case 68:
+                    socket.emit("keys", "D");
+                    console.log("D");
+                    break;
+                case 83:
+                    socket.emit("keys", "S");
+                    console.log("S");
+                    break;
+                default:
+                    console.log(e.keyCode)
+                    break;
             }
-            drawBall(key)
-          }
-          else if(key == id){
-            drawDead()
-          }
-        });
-      }
-
-      function drawTrail(){
-        Object.keys(poslog).forEach(function(key){
-          ctx.beginPath();
-          ctx.arc(poslog[key].x, poslog[key].y, 1, 0, Math.PI*2);
-          ctx.fillStyle = position.color;
-          ctx.fill();
-          ctx.closePath();
-        });
-      }
-
-      function drawBall(user){
-        arrow(positions[user].color, positions[user].x, positions[user].y, positions[user].x+positions[user].vec.x, positions[user].y+positions[user].vec.y, positions[user].ballRadius)
-        if(positions[user].y + positions[user].vec.y < positions[user].ballRadius || positions[user].y + positions[user].vec.y > canvas.height-positions[user].ballRadius){
-          positions[user].vec.y = -positions[user].vec.y
         }
-        if(positions[user].x + positions[user].vec.x > canvas.width-positions[user].ballRadius || positions[user].x + positions[user].vec.x < positions[user].ballRadius){
-          positions[user].vec.x = -positions[user].vec.x
+
+
+        function drawName() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = position.color;
+            ctx.fillText(id + " - Score: " + position.score, 8, 20);
         }
-        positions[user].x += positions[user].vec.x;
-        positions[user].y += positions[user].vec.y;
-      }
 
-      function arrow(color, fromx, fromy, tox, toy, width){
-        var headlen = 20;   // length of head in pixels
-        var angle = Math.atan2(toy-fromy,tox-fromx);
-        ctx.beginPath();
-        ctx.moveTo(fromx, fromy);
-        ctx.lineTo(tox, toy);
-        ctx.lineTo(tox-headlen*Math.cos(angle-Math.PI/6),toy-headlen*Math.sin(angle-Math.PI/6));
-        ctx.moveTo(tox, toy);
-        ctx.lineTo(tox-headlen*Math.cos(angle+Math.PI/6),toy-headlen*Math.sin(angle+Math.PI/6));
-        ctx.strokeStyle = color;
-        ctx.stroke();
-        ctx.closePath();
-      }
-
-      function draw() {
-        if(positions){
-          ctx.clearRect(0, 0, canvas.width, canvas.height)
-          poslog[tick] = {x: position.x, y: position.y}
-          delete poslog[tick-100]
-          drawBalls()
-          drawName()
-          if(trail == true){
-            drawTrail()
-          }
-          position = positions[id]
-          tick++
+        function drawDead() {
+            ctx.font = "16px Arial";
+            ctx.fillStyle = position.color;
+            ctx.fillText("You're Dead: Game Over", canvas.width / 2, canvas.height / 2);
+            document.title = "You're Dead";
+            trail = false
         }
-      }
 
-      function direction(x, y){
-        var addDeg = 0;
-        if(x<0){
-          addDeg = y>=0 ? 180 : 270;
+        function drawBalls() {
+            Object.keys(positions).forEach(function (key, index) {
+                if (positions[key].alive == true) {
+                    if (key == id) {
+                        document.title = "Score: " + positions[id].score;
+                    }
+                    drawBall(key);
+                }
+                else if (key == id) {
+                    drawDead();
+                }
+            });
         }
-        else if(y<=0){
-          addDeg = 360;
+
+        function drawTrail() {
+            Object.keys(poslog).forEach(function (key) {
+                ctx.beginPath();
+                ctx.arc(poslog[key].x, poslog[key].y, 1, 0, Math.PI * 2);
+                ctx.fillStyle = position.color;
+                ctx.fill();
+                ctx.closePath();
+            });
         }
-        return Math.floor(Math.abs(Math.abs(Math.atan(y/x)*180/Math.PI)-addDeg))
-      }
 
-      function setSpeed(speed){
+        function drawBall(user) {
+            arrow(positions[user].color, positions[user].x, positions[user].y, positions[user].x + positions[user].vec.x, positions[user].y + positions[user].vec.y, positions[user].ballRadius)
+            if (positions[user].y + positions[user].vec.y < positions[user].ballRadius || positions[user].y + positions[user].vec.y > canvas.height - positions[user].ballRadius) {
+                positions[user].vec.y = -positions[user].vec.y
+            }
+            if (positions[user].x + positions[user].vec.x > canvas.width - positions[user].ballRadius || positions[user].x + positions[user].vec.x < positions[user].ballRadius) {
+                positions[user].vec.x = -positions[user].vec.x
+            }
+            positions[user].x += positions[user].vec.x;
+            positions[user].y += positions[user].vec.y;
+        }
 
-      }
+        function arrow(color, fromx, fromy, tox, toy, width) {
+            var headlen = 20;   // length of head in pixels
+            var angle = Math.atan2(toy - fromy, tox - fromx);
+            ctx.beginPath();
+            ctx.moveTo(fromx, fromy);
+            ctx.lineTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctx.moveTo(tox, toy);
+            ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            ctx.closePath();
+        }
 
-      socket.emit("keys", " ");
-      var drawing = setInterval(draw, 50);
-      //use clearInterval(drawing) to stop game ticking
+        function draw() {
+            if (positions) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                poslog[tick] = {x: position.x, y: position.y};
+                delete poslog[tick - 100];
+                drawBalls();
+                drawName();
+                if (trail == true) {
+                    drawTrail();
+                }
+                position = positions[id];
+                tick++;
+            }
+        }
+
+        function direction(x, y) {
+            var addDeg = 0;
+            if (x < 0) {
+                addDeg = y >= 0 ? 180 : 270;
+            }
+            else if (y <= 0) {
+                addDeg = 360;
+            }
+            return Math.floor(Math.abs(Math.abs(Math.atan(y / x) * 180 / Math.PI) - addDeg));
+        }
+
+        function setSpeed(speed) {
+
+        }
+
+        socket.emit("keys", " ");
+        var drawing = setInterval(draw, 50);
+        //use clearInterval(drawing) to stop game ticking
     </script>
-  </body>
+</body>
 </html>

@@ -47,7 +47,6 @@ io.on('connection', function(socket){
   });
   socket.on('keys', function(key){
     sender = positions[myName];
-    console.log(myName+" pressed "+key)
     if(key == "W"){
       sender.vec.x = sender.vec.x * 1.1
       sender.vec.y = sender.vec.y * 1.1
@@ -58,15 +57,14 @@ io.on('connection', function(socket){
     }
     else if (key == "D") {
       sender.vec.rotateByDeg(15)
-      io.sockets.emit("log", "Victor thinks your pointing at: "+sender.vec.angleDeg());
+      socket.emit("log", "Victor thinks your pointing at: "+sender.vec.angleDeg());
     }
     else if (key == "A"){
       sender.vec.rotateByDeg(-15)
-      io.sockets.emit("log", "Victor thinks your pointing at: "+sender.vec.angleDeg());
+      socket.emit("log", "Victor thinks your pointing at: "+sender.vec.angleDeg());
     }
     position = positions[myName].vec.x+","+positions[myName].vec.y;
     io.sockets.emit("positions", JSON.stringify(positions));
-    socket.emit("pos", position);
   });
   socket.on('admin', function(data){
     vals = data.split(':')

@@ -39,7 +39,6 @@ io.on('connection', function (socket) {
     socket.emit("id", myName);
     io.sockets.emit("message", myName + " connected");
     io.sockets.emit("positions", JSON.stringify(positions));
-    console.log(myName + ' connected and is at: [' + positions[myName].x + "," + positions[myName].y + "]");
 
     socket.on('disconnect', function () {
         console.log(myName + ' disconnected');
@@ -71,7 +70,6 @@ io.on('connection', function (socket) {
             sender.vec.rotateByDeg(-15);
             io.sockets.emit("log", "Victor thinks your pointing at: " + sender.vec.angleDeg());
         }
-        position = positions[myName].vec.x + "," + positions[myName].vec.y;
         io.sockets.emit("positions", JSON.stringify(positions));
         socket.emit("pos", position);
     });

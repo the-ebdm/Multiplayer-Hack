@@ -99,7 +99,6 @@ function tick() {
       collisionDetection(user);
     }
   });
-  io.sockets.emit("positions", JSON.stringify(positions));
 }
 
 function collisionDetection(user){
@@ -122,6 +121,7 @@ function collisionDetection(user){
           positions[key].score += positions[user].score
           console.log(user+" is dead")
         }
+        io.sockets.emit("positions", JSON.stringify(positions));
       }
     }
   })

@@ -15,11 +15,11 @@ var ballRadius = 10
 app.use("/clientScripts", express.static(path.join(__dirname, 'clientScripts')))
 
 app.get('/', function(req, res){
-  res.sendfile('index.html');
+  res.sendfile('public/index.html');
 });
 
 app.get('/game', function(req, res){
-  res.sendfile('clientCode.html');
+  res.sendfile('public/clientCode.html');
 });
 
 io.on('connection', function(socket){

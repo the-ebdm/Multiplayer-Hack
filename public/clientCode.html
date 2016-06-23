@@ -90,9 +90,6 @@
         var canvas = document.getElementById("battlefield");
         var ctx = canvas.getContext("2d");
 
-        var leftPressed = false;
-        var rightPressed = false;
-
         document.addEventListener("keydown", keyDownHandler, false);
 
         function keyDownHandler(e) {
@@ -114,7 +111,6 @@
                     console.log("S");
                     break;
                 default:
-                    console.log(e.keyCode)
                     break;
             }
         }

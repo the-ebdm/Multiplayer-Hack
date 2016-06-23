@@ -50,9 +50,10 @@
         var positions;
         var alive; //alive is dead
         var id;
+        var MESSAGELIMIT = 20;
 
         var poslog = {};
-        var msgfade = 5000;
+        var MSGFADE = 5000;
         var trail = false;
         var tick = 1;
         var drawing = null;
@@ -60,6 +61,14 @@
         function attachHandlers() {
             $('.btn-start').on('click', init);
             $('.btn-stop').on('click', halt);
+            $('#chat').on('keypress', function(e){
+                (e.which === 13) && sendChat();
+            });
+        }
+
+        function setup() {
+            attachHandlers();
+            setInterval(clearOldMessages, MESSAGELIMIT);
         }
 
 
@@ -72,6 +81,23 @@
             }
         }
 
+        function sendChat() {
+            var chatBox = $("#chat");
+            sendMessage(chatBox.val());
+            chatBox.val("");
+        }
+
+        function clearOldMessages() {
+            var doomedMessages = $('#messages li').slice(MESSAGELIMIT);
+            doomedMessages.fadeOut(MSGFADE).promise().then(function(){
+                doomedMessages.detach();
+            });
+        }
+
+        function sendMessage(msg) {
+            socket.emit("message", msg);
+        }
+
         function change(vari, val) {
             socket.emit("admin", vari + ":" + val)
         }
@@ -82,7 +108,7 @@
         }
 
         socket.on('message', function (msg) {
-            $('#messages').prepend('<li>' + msg + '</li>').children(':first').delay(msgfade).fadeOut(1000)
+            $('#messages').prepend('<li>' + msg + '</li>').children(':first');
         });
         socket.on('id', function (data) {
             id = data;
@@ -228,7 +254,7 @@
         }
 
         socket.emit("keys", " ");
-        attachHandlers();
+        setup();
     }(jQuery, io, document);
 </script>
 </body>

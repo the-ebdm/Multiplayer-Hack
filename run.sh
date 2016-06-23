@@ -1,0 +1,2 @@
+clear
+nodejs server.js

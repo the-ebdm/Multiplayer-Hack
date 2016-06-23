@@ -92,7 +92,6 @@ io.on('connection', function (socket) {
 //game processing
 
 function tick() {
-<<<<<<< HEAD
   Object.keys(positions).forEach(function(key, index){
     if(positions[key].alive == true){
       user = key
@@ -107,7 +106,6 @@ function tick() {
       collisionDetection(user);
     }
   });
-=======
     Object.keys(positions).forEach(function (key, index) {
         if (positions[key].alive == true) {
             var user = key;
@@ -123,7 +121,6 @@ function tick() {
         }
     });
     io.sockets.emit("positions", JSON.stringify(positions));
->>>>>>> 4be9c13bb899788f219609c05dc7774a52ceb979
 }
 
 function collisionDetection(user) {
@@ -148,20 +145,14 @@ function collisionDetection(user) {
                 }
             }
         }
-<<<<<<< HEAD
         else {
           positions[user].alive = false;
           positions[key].score += positions[user].score
           console.log(user+" is dead")
         }
         io.sockets.emit("positions", JSON.stringify(positions));
-      }
+      })
     }
-  })
-=======
-    })
->>>>>>> 4be9c13bb899788f219609c05dc7774a52ceb979
-}
 
 
 //misc functions

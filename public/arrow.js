@@ -14,5 +14,6 @@ function vector(x, y){
   this.normalise = function(){
     this.x = this.x / this.speed()
     this.y = this.y / this.speed()
+    return this
   }
 }

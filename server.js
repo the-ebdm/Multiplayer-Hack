@@ -8,7 +8,7 @@ var users = {}; //stores users can be made persistant later if needed
 var positions = {};
 var userNumber = 1;
 
-var canvas = {width: 640, height: 240};
+var canvas = {width: 640, height: 480};
 var ballRadius = 10;
 
 function vector(x, y){
@@ -52,7 +52,7 @@ io.on('connection', function (socket) {
         ballRadius: ballRadius,
         color: rainbow(30, Math.random() * 30)
     };
-    positions[myName].vec = new vector(Math.random() * 5, Math.random() * 5).normalise()
+    positions[myName].vec = new vector(Math.random() * 5, Math.random() * 5)
 
     socket.emit("id", myName);
     io.sockets.emit("message", myName + " connected");
@@ -99,14 +99,14 @@ io.on('connection', function (socket) {
 function tick() {
     Object.keys(positions).forEach(function(key, index){
       if(positions[key].alive == true){
-        user = key
-        positions[user].x += positions[user].vec.x;
-        positions[user].y += positions[user].vec.y;
-        if(positions[user].y + positions[user].vec.y < positions[user].ballRadius || positions[user].y + positions[user].vec.y > canvas.height-positions[user].ballRadius){
-          positions[user].vec.y = -positions[user].vec.y
+        user = positions[key]
+        user.x += user.vec.x;
+        user.y += user.vec.y;
+        if(user.y + user.vec.y < user.ballRadius || user.y + user.vec.y > canvas.height-user.ballRadius){
+          user.vec.y = -user.vec.y
         }
-        if(positions[user].x + positions[user].vec.x > canvas.width-positions[user].ballRadius || positions[user].x + positions[user].vec.x < positions[user].ballRadius){
-          positions[user].vec.x = -positions[user].vec.x
+        if(user.x + user.vec.x > canvas.width-user.ballRadius || user.x + user.vec.x < user.ballRadius){
+          user.vec.x = -user.vec.x
         }
         collisionDetection(user);
       }
@@ -116,7 +116,7 @@ function tick() {
 
 function collisionDetection(user) {
     Object.keys(positions).forEach(function (key, index) {
-        p1 = positions[user];
+        p1 = user;
         p2 = positions[key];
         difx = p1.x - p2.x;
         dify = p1.y - p2.y;

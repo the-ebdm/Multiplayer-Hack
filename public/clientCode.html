@@ -34,6 +34,7 @@
         socket.on('positions', function (data) {
             positions = JSON.parse(data);
             position = positions[id];
+            position.vec = new vector(position.vec.x, position.vec.y)
             $('#chatbox').css({
                 'background-image': 'none',
                 'border-color': position.color

@@ -21,6 +21,9 @@ function vector(x, y){
     this.x = ca*this.x - sa*this.y
     this.y = sa*this.x + ca*this.y
   }
+  this.speed = function(){
+    Math.sqrt(Math.pow(this.x)+Math.pow(this.y))
+  }
 }
 
 app.use("/public", express.static(path.join(__dirname, 'public')));
@@ -65,8 +68,10 @@ io.on('connection', function (socket) {
     socket.on('keys', function (key) {
         sender = positions[myName];
         if (key == "W") {
-            sender.vec.x = sender.vec.x * 2;
-            sender.vec.y = sender.vec.y * 2;
+            if(sender.vec.speed < 5){
+              sender.vec.x = sender.vec.x * 2;
+              sender.vec.y = sender.vec.y * 2;
+            }
         }
         else if (key == "S") {
             sender.vec.x = sender.vec.x * 0.5;

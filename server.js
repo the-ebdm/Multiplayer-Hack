@@ -3,7 +3,6 @@ var app = express();
 var http = require('http').Server(app);
 var path = require('path');
 var io = require('socket.io')(http);
-var victor = require('victor');
 
 var users = {}; //stores users can be made persistant later if needed
 var positions = {};
@@ -12,7 +11,19 @@ var userNumber = 1;
 var canvas = {width: 640, height: 240};
 var ballRadius = 10;
 
-app.use("/clientScripts", express.static(path.join(__dirname, 'clientScripts')));
+function vector(x, y){
+  this.x = x;
+  this.y = y;
+  this.rotateByDeg = function(deg) {
+    rad = toRadians(deg)
+    ca = Math.cos(rad)
+    sa = Math.sin(rad)
+    this.x = ca*this.x - sa*this.y
+    this.y = sa*this.x + ca*this.y
+  }
+}
+
+app.use("/public", express.static(path.join(__dirname, 'public')));
 
 app.get('/', function (req, res) {
     res.sendfile('public/index.html');
@@ -34,7 +45,7 @@ io.on('connection', function (socket) {
         ballRadius: ballRadius,
         color: rainbow(30, Math.random() * 30)
     };
-    positions[myName].vec = new victor(Math.random() * 5, Math.random() * 5).norm();
+    positions[myName].vec = new vector(Math.random() * 5, Math.random() * 5)
 
     socket.emit("id", myName);
     io.sockets.emit("message", myName + " connected");
@@ -54,20 +65,18 @@ io.on('connection', function (socket) {
     socket.on('keys', function (key) {
         sender = positions[myName];
         if (key == "W") {
-            sender.vec.x = sender.vec.x * 1.1;
-            sender.vec.y = sender.vec.y * 1.1;
+            sender.vec.x = sender.vec.x * 2;
+            sender.vec.y = sender.vec.y * 2;
         }
         else if (key == "S") {
-            sender.vec.x = sender.vec.x * 0.9;
-            sender.vec.y = sender.vec.y * 0.9;
+            sender.vec.x = sender.vec.x * 0.5;
+            sender.vec.y = sender.vec.y * 0.5;
         }
         else if (key == "D") {
             sender.vec.rotateByDeg(15);
-            socket.emit("log", "Victor thinks your pointing at: " + sender.vec.angleDeg());
         }
         else if (key == "A") {
-            sender.vec.rotateByDeg(-15);
-            socket.emit("log", "Victor thinks your pointing at: " + sender.vec.angleDeg());
+            sender.vec.rotateByDeg(-15)
         }
         io.sockets.emit("positions", JSON.stringify(positions));
     });
@@ -183,6 +192,13 @@ function rainbow(numOfSteps, step) {
     return (c);
 }
 
+function toRadians(num){
+  return num * (Math.PI/180)
+}
+
+function toDegrees(num){
+  return num * (180/Math.PI)
+}
 setInterval(tick, 50);
 
 http.listen(3000, function () {

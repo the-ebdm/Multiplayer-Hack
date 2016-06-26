@@ -22,7 +22,11 @@ function vector(x, y){
     this.y = sa*this.x + ca*this.y
   }
   this.speed = function(){
-    Math.sqrt(Math.pow(this.x)+Math.pow(this.y))
+    return Math.sqrt(Math.pow(this.x, 2)+Math.pow(this.y, 2))
+  }
+  this.normalise = function(){
+    this.x = this.x / this.speed()
+    this.y = this.y / this.speed()
   }
 }
 
@@ -48,7 +52,7 @@ io.on('connection', function (socket) {
         ballRadius: ballRadius,
         color: rainbow(30, Math.random() * 30)
     };
-    positions[myName].vec = new vector(Math.random() * 5, Math.random() * 5)
+    positions[myName].vec = new vector(Math.random() * 5, Math.random() * 5).normalise()
 
     socket.emit("id", myName);
     io.sockets.emit("message", myName + " connected");
@@ -68,7 +72,7 @@ io.on('connection', function (socket) {
     socket.on('keys', function (key) {
         sender = positions[myName];
         if (key == "W") {
-            if(sender.vec.speed < 5){
+            if(sender.vec.speed() < 5){
               sender.vec.x = sender.vec.x * 2;
               sender.vec.y = sender.vec.y * 2;
             }

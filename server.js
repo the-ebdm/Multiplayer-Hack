@@ -8,7 +8,7 @@ var users = {}; //stores users can be made persistant later if needed
 var positions = {};
 var userNumber = 1;
 
-var canvas = {width: 640, height: 480};
+var canvas = {width: 720, height: 480};
 var ballRadius = 10;
 
 function vector(x, y){

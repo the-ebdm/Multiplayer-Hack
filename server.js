@@ -9,6 +9,7 @@ var positions = {};
 var userNumber = 1;
 
 var canvas = {width: 720, height: 480};
+var wind = new vector(Math.random(), Math.random())
 var ballRadius = 10;
 
 function vector(x, y){

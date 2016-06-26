@@ -6,7 +6,7 @@
     "socket.io": "^1.4.6",
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "run.sh"
   },
   "description": "My start on the Multiplayer-Hack.",
   "main": "server.js",

@@ -80,21 +80,8 @@ io.on('connection', function (socket) {
         }
         io.sockets.emit("positions", JSON.stringify(positions));
     });
-    socket.on('admin', function (data) {
-        vals = data.split(':');
-        console.log(vals);
-        if (vals[0] == "dx") {
-            positions[myName].vec.x = parseFloat(vals[1])
-        }
-        else if (vals[0] == "dy") {
-            positions[myName].vec.y = parseFloat(vals[1])
-        }
-        else if (vals[0] == "x") {
-            positions[myName].x = parseFloat(vals[1])
-        }
-        else if (vals[0] == "y") {
-            positions[myName].y = parseFloat(vals[1])
-        }
+    socket.on('kick', function (user) {
+        io.sockets.users[user].disconnect()
     });
 });
 

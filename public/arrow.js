@@ -16,4 +16,7 @@ function vector(x, y){
     this.y = this.y / this.speed()
     return this
   }
+  this.direction = function(){
+    return Math.atan(this.x, this.y)
+  }
 }

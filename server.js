@@ -9,7 +9,6 @@ var positions = {};
 var userNumber = 1;
 
 var canvas = {width: 720, height: 480};
-var wind = new vector(Math.random(), Math.random())
 var ballRadius = 10;
 
 function vector(x, y){
@@ -28,6 +27,10 @@ function vector(x, y){
   this.normalise = function(){
     this.x = this.x / this.speed()
     this.y = this.y / this.speed()
+    return this
+  }
+  this.direction = function(){
+    return Math.atan(this.x, this.y)
   }
 }
 
@@ -140,7 +143,6 @@ function collisionDetection(user) {
         io.sockets.emit("positions", JSON.stringify(positions));
       })
     }
-
 
 //misc functions
 

@@ -32,7 +32,12 @@ function init() {
 
 function sendChat() {
     var chatBox = $("#chat");
-    sendMessage(chatBox.val());
+    if(chatBox.val() == "/clear"){
+      $('#messages').empty()
+    }
+    else{
+      sendMessage(chatBox.val());
+    }
     chatBox.val("");
 }
 
@@ -162,6 +167,23 @@ socket.on('log', function (msg) {
         ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
         ctx.strokeStyle = color;
         ctx.stroke();
+        ctx.closePath();
+    }
+
+    function drawEllipse(centerX, centerY, height, dir) {
+      width = height / 3
+	     ctx.beginPath();
+       ctx.moveTo(centerX, centerY - height/2); // A1
+       ctx.bezierCurveTo(
+          centerX + width/2, centerY - height/2, // C1
+          centerX + width/2, centerY + height/2, // C2
+          centerX, centerY + height/2); // A2
+        ctx.bezierCurveTo(
+          centerX - width/2, centerY + height/2, // C3
+          centerX - width/2, centerY - height/2, // C4
+          centerX, centerY - height/2); // A1
+        ctx.fillStyle = "red";
+        ctx.fill();
         ctx.closePath();
     }
 
